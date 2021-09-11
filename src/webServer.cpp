@@ -1,5 +1,6 @@
 // Webserver Dependencies
 #include "defenitions.h"
+#include <ESPmDNS.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 
@@ -51,6 +52,14 @@ void webServer(void* param) {
     WiFi.softAP(WIFI_SSID, WIFI_PASS);
     server.begin();
     
+    // mDNS service
+    if(!MDNS.begin("ucsdrobocar")) {
+        Serial.println("Error starting mDNS");
+        return;
+    }
+    else {
+        Serial.println("Local address: ucsdrobocar.local")
+    }
     // Main Web Server Loop
     Serial.print("Web Server Running On Core[");
     Serial.print(xPortGetCoreID());
