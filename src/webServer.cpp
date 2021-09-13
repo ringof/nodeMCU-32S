@@ -3,6 +3,11 @@
 #include <ESPmDNS.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include <EEPROM.h>
+
+
+// Host/Wifi Config
+host_wifi_config_t host_wifi_config;
 
 // Webserver Instances
 AsyncWebServer server(HTTP_PORT);
@@ -37,7 +42,13 @@ void syncDevices(char *message) {
 }
 
 // Web Server Loop
-void webServer(void* param) {    
+void webServer(void* param) {
+
+    if (!getHostWifiConfig(&host_wifi_config)) {
+        Serial.println("No Host/Wifi Configuration Found in EEPROM");
+        return;
+    }
+
     // Initialize Web Socket Handlers
     ws.onEvent(webSocketEvent);
     server.addHandler(&ws);
@@ -48,18 +59,21 @@ void webServer(void* param) {
         request->send(LITTLEFS, "/index.html", "text/html");
     });
     
-    // Launch Soft Access Point and Server
-    WiFi.softAP(WIFI_SSID, WIFI_PASS);
+    WiFi.softAP(host_wifi_config.ssid.c_str(), host_wifi_config.pass.c_str());
     server.begin();
     
     // mDNS service
-    if(!MDNS.begin("ucsdrobocar")) {
+
+    if(!MDNS.begin(host_wifi_config.host.c_str())) {
         Serial.println("Error starting mDNS");
         return;
     }
     else {
-        Serial.println("Local address: ucsdrobocar.local")
+        Serial.print("mDNS started: ");
+        Serial.print(host_wifi_config.host.c_str());
+        Serial.println(".local");
     }
+
     // Main Web Server Loop
     Serial.print("Web Server Running On Core[");
     Serial.print(xPortGetCoreID());

@@ -4,6 +4,12 @@
 #include <Arduino.h>
 #include <LITTLEFS.h>
 
+struct host_wifi_config_t {
+    String host;
+    String ssid;
+    String pass;
+};
+
 // -------------------------------------------------------------------
 // I/O Pins (Hardcoded, PCB V1.0)
 // -------------------------------------------------------------------
@@ -128,13 +134,21 @@ extern QueueHandle_t qh_jsonToParse;
 
 
 // ---------------------------------------------------------
+// ACCESS POINT
+// ---------------------------------------------------------
+
+  // Defenitions
+  #define CONFIG_NS "config"
+  #define DFLT_WIFI_SSID "robocar"
+  #define DFLT_WIFI_PASS "jetsonucsd"
+  #define DFLT_HOSTNAME "donkey"
+
+// ---------------------------------------------------------
 // WEB SERVER
 // ---------------------------------------------------------
 
   // Defenitions 
   #define HTTP_PORT 80
-  #define WIFI_SSID "ESP32-MC"
-  #define WIFI_PASS "jetsonucsd"
   #define WEBSOCKET_TIMEOUT 1000
   #define WEBSERVER_DELAY 400
 
@@ -182,4 +196,17 @@ extern QueueHandle_t qh_jsonToParse;
   void updatePID( int const &kp,
                   int const &ki,
                   int const &kd);
+
+// ---------------------------------------------------------
+// Host / Wifi Configuration
+// ---------------------------------------------------------
+
+  // Functions
+  bool isHostWifiConfigured();
+  bool isDefaultHostWifiConfig();
+  void initHostWifiConfig(bool);
+  void printHostWifiConfig();
+  bool getHostWifiConfig(host_wifi_config_t*);
+  bool setHostWifiConfig(host_wifi_config_t*);
+
 #endif

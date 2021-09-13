@@ -114,8 +114,27 @@ void pwmTasks(void* param) {
 
 // Set Up
 void setup()
-{   // Create Server to PWM Queue
+{   
+    host_wifi_config_t host_wifi_config;
+    String host = "robotman";
+    String ssid = "charman";
+    String pass = "password";
+    host_wifi_config.host = host;
+    host_wifi_config.pass = pass;
+    host_wifi_config.ssid = ssid;
+
     Serial.begin(115200);
+
+    //Wifi and Host Configuration 
+    if (isHostWifiConfigured()) { 
+        setHostWifiConfig(&host_wifi_config);
+    }
+    else {
+        initHostWifiConfig(true); //clear and init   
+    }
+    printHostWifiConfig();
+
+    // Create Server to PWM Queue
     Serial.print("setup running on core ");
     Serial.println(xPortGetCoreID());
     server2PWM_QueueHandle = xQueueCreate(QUEUE_SIZE, sizeof(bool));
